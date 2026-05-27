@@ -6,9 +6,9 @@ async function info(interaction) {
             "Use /votar para iniciar votação.\n" +
             "Use /leaderboard para ranking.\n" +
             "Use /perfil para perfil.\n" +
-            "Use /loja para comprar itens." +
-            "Use /farmar para coletar aura diária." +
-            "Use /inventario para ver seus itens." +
+            "Use /loja para comprar itens.\n" +
+            "Use /farmar para coletar aura diária.\n" +
+            "Use /inventario para ver seus itens.\n" +
             "Use /usar {item} {alvo se necessário} para usar um item do inventário.",
         ephemeral: true
     });
