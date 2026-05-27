@@ -19,7 +19,7 @@ async function leaderboard(interaction) {
 
     const texto = rows
         .map((r, i) =>
-            `${i + 1}. <@${r.userId}> — ${r.aura.toFixed(2)} aura`
+            `${i + 1}. <@${r.userId}>: ${r.aura.toFixed(2)} aura`
         )
         .join("\n");
 

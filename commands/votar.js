@@ -95,7 +95,7 @@ async function votar(interaction) {
 
     await interaction.reply({
         content:
-            `📊 **VOTAÇÃO ATIVA**\n\n` +
+            `**VOTAÇÃO ATIVA**\n\n` +
             `Alvo: **${nomeAlvo}** (<@${alvo.id}>)\n` +
             `Tempo: 60 segundos\n\n` +
             `Clique para votar!`,
