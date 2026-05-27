@@ -186,6 +186,8 @@ async function usar(interaction) {
             
             multiplicadorFinal = efeitoAnterior.multiplicador + efeitoEscolhido.multiplicador;
             multiplicadorFinal = Math.max(-4, Math.min(4, multiplicadorFinal));
+
+            if (multiplicadorFinal === 0) multiplicadorFinal = 0.5;
         }
 
         db.prepare(`
