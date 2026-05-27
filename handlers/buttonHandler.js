@@ -131,6 +131,10 @@ async function buttonHandler(interaction) {
             return interaction.reply({ content: "Você precisa estar na call da votação.", ephemeral: true });
         }
 
+        if (interaction.user.id === session.alvoId) {
+            return interaction.reply({ content: "Você não pode votar em si mesmo.", ephemeral: true });
+        }
+
         session.votos[interaction.user.id] = value;
 
         db.prepare(`
