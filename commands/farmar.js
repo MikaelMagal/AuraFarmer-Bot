@@ -19,10 +19,10 @@ async function farmar(interaction) {
     if (result.ganho === 67) {
         mensagem_bonus = "**BÔNUS DE SORTE!** 🎉\n Você ganhou + 1000 aura pelo 67!\n";
         bonus = 1000;
+
+        userService.addAura(userid, bonus);
     }
     const ganho  = result.ganho + bonus;
-
-    userService.addAura(userid, ganho);
 
     return interaction.reply({
         content:
