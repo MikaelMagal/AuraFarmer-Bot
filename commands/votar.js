@@ -26,14 +26,6 @@ async function votar(interaction) {
     const cdKey    = `votar:${interaction.guildId}`;
     const expireAt = isOnCooldown(cdKey);
 
-    if (expireAt) {
-        const restante = expireAt - Date.now();
-        return interaction.reply({
-            content: `⏳ Próxima votação disponível em **${formatarTempo(restante)}**.`,
-            ephemeral: true
-        });
-    }
-
     if (activeSessions.has(canal.id)) {
         return interaction.reply({
             content: "Já existe uma votação ativa nessa call.",
