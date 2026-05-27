@@ -12,6 +12,11 @@ async function farmar(interaction) {
         });
     }
 
+    const userid = interaction.user.id;
+    const ganho  = result.ganho;
+
+    userService.addAura(userid, ganho);
+
     return interaction.reply({
         content:
             `🌟 Você coletou **+${result.ganho} aura** hoje!\n` +

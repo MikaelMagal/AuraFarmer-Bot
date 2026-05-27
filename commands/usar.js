@@ -97,11 +97,11 @@ async function usar(interaction) {
                 `⚔️ **DUELO DE AURA**\n\n` +
                 `**${interaction.user.username}** desafiou **${alvo.username}**!\n` +
                 `Aposta: **${aposta} aura**\n\n` +
-                `Vote em quem merece ganhar. 60 segundos!`,
+                `Vote em quem merece ganhar. 30 segundos!`,
             components: [row1]
         });
 
-        setTimeout(() => finalizarVotacao(canal.id), 60_000);
+        setTimeout(() => finalizarVotacao(canal.id), 30_000);
         return;
     }
 
