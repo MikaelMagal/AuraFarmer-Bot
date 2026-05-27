@@ -120,10 +120,25 @@ async function buttonHandler(interaction) {
         const parts     = customId.split("_");
         const channelId = parts[parts.length - 1];
         const value     = Number(parts.slice(1, -1).join("_"));
+        const userId    = interaction.user.id;
 
         const session = activeSessions.get(channelId);
         if (!session) {
             return interaction.reply({ content: "Essa votação já acabou.", ephemeral: true });
+        }
+
+         // ── Regra do duelo ──
+        if (session.duelo) {
+            const { desafianteId, alvoId } = session.duelo;
+
+            // desafiante não pode votar em si mesmo (vote_1 = desafiante vence)
+            if (userId === desafianteId && value === 1) {
+                return interaction.reply({
+                    content: "Você não pode votar em si mesmo no duelo.",
+                    ephemeral: true
+                });
+            }
+
         }
 
         const canal = interaction.member.voice.channel;
@@ -131,17 +146,30 @@ async function buttonHandler(interaction) {
             return interaction.reply({ content: "Você precisa estar na call da votação.", ephemeral: true });
         }
 
-        if (interaction.user.id === session.alvoId) {
+        if (!session.duelo && interaction.user.id === session.alvoId) {
             return interaction.reply({ content: "Você não pode votar em si mesmo.", ephemeral: true });
         }
 
         session.votos[interaction.user.id] = value;
 
-        db.prepare(`
-            INSERT INTO votes (sessionId, targetId, userId, value)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(sessionId, userId) DO UPDATE SET value = excluded.value
-        `).run(session.sessionId, session.alvoId, interaction.user.id, value);
+        if (!session.duelo) {
+            db.prepare(`
+                INSERT INTO votes (sessionId, targetId, userId, value)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(sessionId, userId) DO UPDATE SET value = excluded.value
+            `).run(session.sessionId, session.alvoId, interaction.user.id, value);
+        }
+
+        if (session.duelo) {
+            const nomeVencedor = value === 1
+                ? session.duelo.desafianteNome
+                : session.duelo.alvoNome;
+
+            return interaction.reply({
+                content: `✅ Você votou em **${nomeVencedor}**!`,
+                ephemeral: true
+            });
+        }
 
         return interaction.reply({
             content: `✅ Seu voto: **${value > 0 ? "+" : ""}${value} aura**`,

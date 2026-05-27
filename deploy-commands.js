@@ -31,7 +31,7 @@ const commands = [
         .setDescription("Seu inventário de itens"),
 
     new SlashCommandBuilder()
-        .setName("diario")
+        .setName("farmar")
         .setDescription("Colete sua aura diária (50~150 aura)"),
 
     new SlashCommandBuilder()

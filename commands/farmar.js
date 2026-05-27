@@ -1,6 +1,6 @@
 const userService = require("../services/userService");
 
-async function diario(interaction) {
+async function farmar(interaction) {
     const result = userService.claimDaily(interaction.user.id);
 
     if (!result.success) {
@@ -19,4 +19,4 @@ async function diario(interaction) {
     });
 }
 
-module.exports = diario;
+module.exports = farmar;

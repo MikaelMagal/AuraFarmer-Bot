@@ -63,7 +63,7 @@ async function usar(interaction) {
         const auraDesafiante = userService.getAura(userId);
         const auraAlvo       = userService.getAura(alvo.id);
 
-        if (auraDesafiante < aposta || auraAlvo < aposta) {
+        if (auraDesafiante < aposta || auraAlvo / 2 < aposta) {
             return interaction.reply({
                 content: `Ambos precisam ter pelo menos **${aposta} aura** para duelar.`,
                 ephemeral: true
@@ -133,6 +133,71 @@ async function usar(interaction) {
 
         return interaction.reply({
             content: `🎩 Na próxima votação, **${alvo.username}** aparecerá como **"${novoNome}"**.`,
+            ephemeral: true
+        });
+    }
+
+    /* ── POÇÃO ALEATÓRIA: efeito aleatório na próxima votação ── */
+    if (itemid === "poção_aleatoria") {
+        const efeitos = [
+            {
+                descricao: "Nada aconteceu...",
+                multiplicador: 1,
+                chance: 60
+            },
+            {
+                descricao: "Metade da aura na próxima votação",
+                multiplicador: 0.5,
+                chance: 25
+            },
+            {
+                descricao: "Aura dobrada na próxima votação",
+                multiplicador: 2,
+                chance: 10
+            },
+            {
+                descricao: "Aura invertida",
+                multiplicador: -1,
+                chance: 5
+            }
+        ];
+
+        const rand = Math.random() * 100;
+        let acumulado = 0;
+        let efeitoEscolhido;
+
+        for (const efeito of efeitos) {
+            acumulado += efeito.chance;
+            if (rand < acumulado) {
+                efeitoEscolhido = efeito;
+                break;
+            }
+        }
+
+        const pocaoAtiva = db.prepare(`
+            SELECT data FROM efeitos_ativos
+            WHERE userId = ? AND tipo = 'pocao' AND expiresAt > ?
+        `).get(userId, Date.now());
+
+        let multiplicadorFinal = efeitoEscolhido.multiplicador;
+
+        if (pocaoAtiva) {
+            const efeitoAnterior = JSON.parse(pocaoAtiva.data);
+            
+            multiplicadorFinal = efeitoAnterior.multiplicador + efeitoEscolhido.multiplicador;
+            multiplicadorFinal = Math.max(-4, Math.min(4, multiplicadorFinal));
+        }
+
+        db.prepare(`
+            INSERT OR REPLACE INTO efeitos_ativos (userId, tipo, data, expiresAt)
+            VALUES (?, 'pocao', ?, ?)
+        `).run(userId, JSON.stringify({ ...efeitoEscolhido, multiplicador: multiplicadorFinal }), Date.now() + 24 * 60 * 60 * 1000);
+
+        // consome o item
+        inventoryService.removeItem(userId, itemId);
+
+        return interaction.reply({
+            content: `🧪 Você usou a Poção Aleatória! Efeito: **${efeitoEscolhido.descricao}**`,
             ephemeral: true
         });
     }

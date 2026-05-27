@@ -11,19 +11,35 @@ async function finalizarVotacao(channelId) {
     const { alvoId, votos, interaction, sessionId, duelo } = session;
     const valores = Object.values(votos);
 
+    const userId = interaction.user.id;
+
     /* ── DUELO (Espada Lendária) ── */
     if (duelo) {
         activeSessions.delete(channelId);
 
         if (valores.length === 0) {
-            return interaction.followUp({ content: "⚔️ Duelo sem votos. Ninguém ganhou." });
+            return interaction.followUp({ content: "⚔️ Duelo sem votos. Ninguém foi moggado." });
         }
 
         const soma = valores.reduce((a, b) => a + b, 0);
-        // vote_1 = desafiante vence | vote_-1 = alvo vence
+
+        // empate
+        if (soma === 0) {
+            const perda = Math.floor(duelo.aposta / 2);
+            userService.addAura(duelo.desafianteId, -perda);
+            userService.addAura(duelo.alvoId,       -perda);
+
+            return interaction.followUp({
+                content:
+                    `⚔️ **Duelo Empatado!**\n\n` +
+                    `Sem vencedor — ambos foram moggados e perderam **${perda} aura** (metade da aposta).\n` +
+                    `Votos: ${valores.filter(v => v === 1).length} x ${valores.filter(v => v === -1).length}`
+            });
+        }
+
         const desafianteVenceu = soma > 0;
-        const vencedor  = desafianteVenceu ? duelo.desafianteId : duelo.alvoId;
-        const perdedor  = desafianteVenceu ? duelo.alvoId       : duelo.desafianteId;
+        const vencedor = desafianteVenceu ? duelo.desafianteId : duelo.alvoId;
+        const perdedor = desafianteVenceu ? duelo.alvoId       : duelo.desafianteId;
 
         userService.addAura(vencedor,  duelo.aposta);
         userService.addAura(perdedor, -duelo.aposta);
@@ -31,20 +47,33 @@ async function finalizarVotacao(channelId) {
         return interaction.followUp({
             content:
                 `⚔️ **Duelo Encerrado!**\n\n` +
-                `🏆 Vencedor: <@${vencedor}> +${duelo.aposta} aura\n` +
-                `💀 Perdedor: <@${perdedor}> -${duelo.aposta} aura\n` +
+                `🏆 Moggador: <@${vencedor}> **+${duelo.aposta} aura**\n` +
+                `💀 Moggado: <@${perdedor}> **-${duelo.aposta} aura**\n` +
                 `Votos: ${valores.filter(v => v === 1).length} x ${valores.filter(v => v === -1).length}`
         });
     }
 
     /* ── VOTAÇÃO NORMAL ── */
     if (valores.length === 0) {
-        await interaction.followUp({ content: "⏰ Votação encerrada. Ninguém votou." });
+        await interaction.followUp({ content: "Votação encerrada. Ninguém votou." });
         activeSessions.delete(channelId);
         return;
     }
 
-    const media = mediaRobusta(valores);
+    let media = mediaRobusta(valores);
+
+    const pocaoRow = db.prepare(`
+        SELECT data FROM efeitos_ativos
+        WHERE userId = ? AND tipo = 'pocao' AND expiresAt > ?
+    `).get(alvoId, Date.now());
+
+    if (pocaoRow) {
+        const efeito = JSON.parse(pocaoRow.data);
+        media = media * efeito.multiplicador;
+
+        db.prepare(`DELETE FROM efeitos_ativos WHERE userId = ? AND tipo = 'pocao'`)
+        .run(alvoId);
+    }
 
     db.prepare(`
         INSERT INTO results (sessionId, targetId, finalScore, createdAt)

@@ -43,4 +43,13 @@ db.prepare(`
     )
 `).run();
 
+db.prepare(`
+    CREATE TABLE IF NOT EXISTS efeitos_ativos (
+        userId    TEXT PRIMARY KEY,
+        tipo      TEXT,
+        data      TEXT,
+        expiresAt INTEGER
+    )
+`).run();
+
 module.exports = db;

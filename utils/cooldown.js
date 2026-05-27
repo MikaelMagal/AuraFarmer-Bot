@@ -1,6 +1,6 @@
 const db = require("../database");
 
-// key: string única ex "votar:guildId" ou "diario:userId"
+// key: string única ex "votar:guildId" ou "farmar:userId"
 function isOnCooldown(key) {
     const row = db.prepare(`
         SELECT expiresAt FROM cooldowns WHERE key = ?

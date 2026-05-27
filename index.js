@@ -23,7 +23,7 @@ const commands = {
     loja:        require("./commands/loja"),
     votar:       require("./commands/votar"),
     inventario:  require("./commands/inventario"),
-    diario:      require("./commands/diario"),
+    farmar:      require("./commands/farmar"),
     usar:        require("./commands/usar"),
 };
 
