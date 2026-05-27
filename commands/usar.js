@@ -156,7 +156,7 @@ async function usar(interaction) {
                 chance: 10
             },
             {
-                descricao: "Aura invertida",
+                descricao: "Menos aura na próxima votação... que azar!",
                 multiplicador: -1,
                 chance: 5
             }
