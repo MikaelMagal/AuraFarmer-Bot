@@ -1,5 +1,10 @@
 require("dotenv").config();
 
+const express = require("express");
+const app = express();
+
+const db = require("./database");
+
 const { Client, GatewayIntentBits, Events } = require("discord.js");
 
 const client = new Client({
