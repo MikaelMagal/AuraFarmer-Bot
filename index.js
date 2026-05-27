@@ -43,4 +43,12 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
+app.get("/", (req, res) => {
+    res.send("AuraBot online");
+});
+
+app.listen(process.env.PORT || 3000, () => {
+    console.log("Servidor web ativo.");
+});
+
 client.login(process.env.TOKEN);
